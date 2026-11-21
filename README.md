@@ -63,18 +63,8 @@ Drag a dial, type `1.37`, or tap a preset. Remember a speed per show. It follows
 
 **Prefer no auto-update?** Paste the whole [`speed-dial.js`](speed-dial.js) instead of the loader.
 
-### Install with PowerShell (Windows)
-
-Download this repo, then in its folder:
-
-```powershell
-.\speed-dial.ps1 install -CloseHarbor   # closes Harbor, installs, reopens it
-.\speed-dial.ps1 status                 # what's installed
-.\speed-dial.ps1 remove -CloseHarbor    # take it out again
-```
-
-Add `-Offline` to install the full script with no auto-update. The script only changes the Custom JS setting,
-keeps any other code you have there, and saves a backup of Harbor's settings first.
+> Paste it through Harbor's Settings. Editing Harbor's `settings.json` by hand doesn't stick:
+> Harbor keeps its settings in its own storage and rewrites that file on startup.
 
 ## Use it
 
@@ -91,8 +81,8 @@ You can also scroll on the dial button to change speed without opening the panel
 
 ## Remove
 
-Delete everything from `/* >>> speed-dial` to `/* <<< speed-dial <<< */` in **Custom JS** (or run `.\speed-dial.ps1 remove`).
-It cleans up right away.
+Delete everything from `/* >>> speed-dial` to `/* <<< speed-dial <<< */` in **Custom JS** (or press **Clear** if it's the only
+thing there). It cleans up right away.
 
 ## Tweak it
 

@@ -1,4 +1,8 @@
 <#
+  NOT RECOMMENDED: Harbor keeps settings in its own storage and rewrites settings.json
+  on startup, so changes made here are lost. Paste loader.js into Settings > Player >
+  Custom code > Custom JS instead. Kept only for reference.
+
   Speed Dial for Harbor: install, update, remove or check.
 
     .\speed-dial.ps1 install    # add the auto-updating loader to Harbor's Custom JS
