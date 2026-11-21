@@ -30,9 +30,12 @@ Repo: https://github.com/zerobun0/harbor-speed-dial (public). Harbor upstream: g
 - ✅ H18: CHANGELOG.md; keep it and the CHANGELOG array at the top of speed-dial.js in sync on every release
 - ✅ H19: v1.3.0 pushed
 
+- ✅ H20/H21: v1.3.1 fixes the section never attaching in real Harbor (button sits inside Tooltip `div.group/tip.relative`; menu is a sibling one level up). Mock now has the tooltip wrapper.
+
 ## Gotchas
 
 - Harbor keeps settings in webview localStorage and REWRITES settings.json on startup: editing the file does nothing. Install only by pasting in Settings.
 - Harbor binds `[` `]` (speed 0.25), `Shift+{` `Shift+}` (subtitle size). Don't reuse.
 - Keep speed-dial.js ASCII-only: run scratch ascii.js converter (escapes non-ASCII to \uXXXX). Shell sed/python one-liners mangle `\u` escapes.
+- Harbor's speed button is wrapped in a Tooltip `div.relative`: find the menu by walking up ancestors, never `closest("div.relative")`.
 - New-video speed restore must compare against the REAL mpv speed (readSpeed), not cached state (race fixed in v1.1).

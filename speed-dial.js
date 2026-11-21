@@ -1,8 +1,11 @@
-/* >>> speed-dial v1.3.0 >>> https://github.com/zerobun0/harbor-speed-dial */
+/* >>> speed-dial v1.3.1 >>> https://github.com/zerobun0/harbor-speed-dial */
 (() => {
-  const VERSION = "1.3.0";
+  const VERSION = "1.3.1";
   // newest first; shown in the update notice and under "What's new"
   const CHANGELOG = [
+    { v: "1.3.1", items: [
+      "Fixed: Custom speed (dial, Remember for this show, Use for all videos, Saved shows) didn't appear in Harbor's Speed & sleep menu",
+    ] },
     { v: "1.3.0", items: [
       "Saved shows: see every show's speed and remove any of them",
       "This update notice, plus the version and What's new in the menu",
@@ -104,9 +107,17 @@
     return gauge ? gauge.closest("button") : null;
   }
   function nativeMenu() {
+    // The menu is a "fixed" sibling somewhere up the button's wrappers (Harbor puts the
+    // button inside a Tooltip div first), so walk up a few levels and look at each one's children.
     const btn = nativeSpeedBtn(); if (!btn) return null;
-    const wrapEl = btn.closest("div.relative"); if (!wrapEl) return null;
-    for (const c of wrapEl.children) if (c.classList.contains("fixed")) return c;
+    let el = btn.parentElement;
+    for (let i = 0; el && i < 6; i++, el = el.parentElement) {
+      for (const c of el.children) {
+        if (c !== btn && c.classList.contains("fixed") && !c.contains(btn) &&
+            (c.classList.contains("bg-elevated") || /speed/i.test(c.textContent || ""))) return c;
+      }
+      if (el.matches(PLAYER_SEL)) break;
+    }
     return null;
   }
 
@@ -592,7 +603,7 @@
     // older versions didn't record what was seen: if Speed Dial already ran here, this is an update
     const hadOlder = !seen && (localStorage.getItem(STORE) != null || localStorage.getItem("speedDial.code") != null);
     if (seen && !newer(VERSION, seen)) return;
-    const entries = seen ? CHANGELOG.filter((e) => newer(e.v, seen)) : hadOlder ? CHANGELOG.slice(0, 1) : [];
+    const entries = seen ? CHANGELOG.filter((e) => newer(e.v, seen)) : hadOlder ? CHANGELOG.filter((e) => newer(e.v, "1.2.0")) : [];
     const nr = noteHost.attachShadow({ mode: "open" });
     nr.innerHTML = `<style>
       :host { all: initial; }

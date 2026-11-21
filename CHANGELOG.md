@@ -3,6 +3,11 @@
 Speed Dial updates itself. When a new version arrives, Harbor shows a small "Speed Dial updated" card with what changed.
 You can also see your version and this list any time: open **Speed & sleep** and click **What's new** at the bottom of Custom speed.
 
+## v1.3.1 (2026-11-21)
+
+- Fixed: Custom speed (dial, Remember for this show, Use for all videos, Saved shows) didn't appear in Harbor's
+  Speed & sleep menu, because Harbor wraps that button in a tooltip
+
 ## v1.3.0 (2026-11-21)
 
 - Saved shows: see every show's speed and remove any of them
