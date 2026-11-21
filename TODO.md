@@ -6,9 +6,8 @@ Repo: https://github.com/zerobun0/harbor-speed-dial (public). Harbor upstream: g
 
 ## Open
 
-- ⬜ H15: User checks v1.3 in real Harbor (should see 'Speed Dial updated to v1.3.0' card) (open Speed & sleep or press K; floating pill from v1.0 should be gone)
-  - Done: section shows inside the menu, speed changes heard, per-show works on next episode
-- ⬜ H11: Ask user whether to delete speed-dial.ps1 (doesn't work) and docs/control-bar.png (no longer used)
+- ⬜ H15: User restarts Harbor and checks v1.4.0: "Speed Dial updated to v1.4.0" card, Custom speed shows in Speed & sleep
+  - Done: section shows, speed changes heard, per-show works on next episode
 
 ## Done
 
@@ -32,7 +31,17 @@ Repo: https://github.com/zerobun0/harbor-speed-dial (public). Harbor upstream: g
 
 - ✅ H20/H21: v1.3.1 fixes the section never attaching in real Harbor (button sits inside Tooltip `div.group/tip.relative`; menu is a sibling one level up). Mock now has the tooltip wrapper.
 
+- ✅ H11: Deleted speed-dial.ps1 and docs/control-bar.png (v1.4.0 commit)
+- ✅ H22: Second way to find the menu (any .fixed panel in the player with a Playback speed heading) + clear message if a menu opens and it still cannot attach (v1.4.0, mock-tested)
+- ✅ H23: Self-update: asks api.github.com for the main commit sha (uncached), loads raw/<sha>/speed-dial.js, switches if newer; 1.5 s after start then every 3 min; older copies never replace newer ones (v1.4.0, mock-tested). Harbor CSP allows connect-src https: and unsafe-eval.
+- ✅ H24: Install guide says Settings > System > Custom code (Advanced on older Harbor; Settings search as fallback)
+- ✅ H25: Investigated "1.85 carried to Black Clover": not a bug. Harbor defaultPlaybackSpeed was pinned to 1.85 (settings.json). README now explains the pin.
+
 ## Gotchas
+
+- Official Harborofficial/Harbor repo is 404 now (2026-11-21). Newest public source copy: JinxAgain/harbor or canonrebel04/harbor (v0.9.132, older than the user's 1.0.3).
+- Harbor picks a new video's speed as: that title's saved rate, else settings.defaultPlaybackSpeed (the pin in its speed list).
+- Mock tests: page.goto to the same URL with only a new #hash does NOT reload; add ?r=N.
 
 - Harbor keeps settings in webview localStorage and REWRITES settings.json on startup: editing the file does nothing. Install only by pasting in Settings.
 - Harbor binds `[` `]` (speed 0.25), `Shift+{` `Shift+}` (subtitle size). Don't reuse.

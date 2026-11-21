@@ -25,7 +25,8 @@ No extra buttons, and it follows your Harbor theme.
 
 ## Install (1 minute)
 
-1. Open Harbor and go to **Settings → Player → Custom code**, then click **Show the code editors**.
+1. Open Harbor and go to **Settings → System → Custom code**, then click **Show the code editors**.
+   (Older Harbor versions have it under **Settings → Advanced → Custom code**. Can't find it? Type `Custom JS` in the Settings search.)
 2. Paste this into the **Custom JS** box:
 
 ```js
@@ -59,7 +60,7 @@ No extra buttons, and it follows your Harbor theme.
 
 3. Play something and open **Speed & sleep** (or press `K`). The Custom speed section is at the top. No restart needed.
 
-**Updates:** automatic. Harbor checks this repo when it starts and every 10 minutes. When a new version lands you get a
+**Updates:** automatic. Speed Dial checks this repo a few seconds after Harbor starts and then every 3 minutes, so a new version usually reaches you within minutes. When a new version lands you get a
 "Speed Dial updated" card with the changes. Your version is always shown at the bottom of Custom speed (click it for
 **What's new**), and the full history is in [CHANGELOG.md](CHANGELOG.md).
 
@@ -82,11 +83,12 @@ No extra buttons, and it follows your Harbor theme.
 You can also scroll on the dial to change speed.
 
 **Priority when a new video starts:** the show's own speed, then "Use for all videos", then Harbor's default speed.
+Harbor's default is the speed you pinned in Harbor's own list ("Set as default speed"). If every new show starts at the same unusual speed, check that pin.
 
 ## Remove
 
-Delete everything from `/* >>> speed-dial` to `/* <<< speed-dial <<< */` in **Custom JS** (or press **Clear** if it's the only
-thing there). It cleans up right away.
+Delete everything from `/* >>> speed-dial` to `/* <<< speed-dial <<< */` in **Custom JS** (Settings → System → Custom code), or press **Clear** if it's the only
+thing there. It cleans up right away.
 
 ## Tweak it
 

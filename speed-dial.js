@@ -1,8 +1,12 @@
-/* >>> speed-dial v1.3.1 >>> https://github.com/zerobun0/harbor-speed-dial */
+/* >>> speed-dial v1.4.0 >>> https://github.com/zerobun0/harbor-speed-dial */
 (() => {
-  const VERSION = "1.3.1";
+  const VERSION = "1.4.0";
   // newest first; shown in the update notice and under "What's new"
   const CHANGELOG = [
+    { v: "1.4.0", items: [
+      "Faster updates: new versions arrive within a few minutes, or seconds after restarting Harbor",
+      "If Custom speed can't find Harbor's Speed & sleep menu, it tries a second way and tells you instead of failing silently",
+    ] },
     { v: "1.3.1", items: [
       "Fixed: Custom speed (dial, Remember for this show, Use for all videos, Saved shows) didn't appear in Harbor's Speed & sleep menu",
     ] },
@@ -31,6 +35,9 @@
   // ---------------------------------------------------------------------------------
 
   const NS = "__speedDial";
+  const verNum = (v) => String(v || "0").split(".").reduce((n, p) => n * 1000 + (Number(p) || 0), 0);
+  // never let an older copy (e.g. a stale cached file) replace a newer one that's already running
+  if (window[NS] && verNum(window[NS].version) > verNum(VERSION)) return;
   try { window[NS] && window[NS].destroy(); } catch (_) {}
 
   const TYPE_MIN = 0.1, TYPE_MAX = 8;
@@ -117,6 +124,14 @@
             (c.classList.contains("bg-elevated") || /speed/i.test(c.textContent || ""))) return c;
       }
       if (el.matches(PLAYER_SEL)) break;
+    }
+    // second way: any floating panel in the player that has a "Playback speed" heading
+    const r = playerRoot();
+    if (r) {
+      for (const c of r.querySelectorAll(".fixed")) {
+        if (c.contains(btn) || c.id === "speed-dial") continue;
+        if (/playback speed/i.test(c.textContent || "") && c.querySelector("button")) return c;
+      }
     }
     return null;
   }
@@ -346,6 +361,8 @@
       font: 700 20px/1.2 var(--font-sans, system-ui, sans-serif); font-variant-numeric: tabular-nums;
       opacity: 0; transition: opacity .16s, transform .16s; pointer-events: none; }
     .t.show { opacity: 1; transform: translate(-50%, 0); }
+    .t.msg { font-size: 13px; font-weight: 500; line-height: 1.4; border-radius: 12px; padding: 10px 14px;
+      width: max-content; max-width: min(460px, calc(100vw - 32px)); text-align: center; }
     @media (prefers-reduced-motion: reduce) { .t { transition: none; } }
   </style><div class="t"></div>`;
   const toastEl = toastRoot.querySelector(".t");
@@ -413,9 +430,17 @@
     if (!playerRoot()) return;
     if (!toastHost.isConnected) document.body.appendChild(toastHost);
     toastEl.textContent = label(speed);
+    toastEl.classList.remove("msg");
     toastEl.classList.add("show");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toastEl.classList.remove("show"), 900);
+  }
+  function showMessage(text, ms) {
+    if (!toastHost.isConnected) document.body.appendChild(toastHost);
+    toastEl.textContent = text;
+    toastEl.classList.add("msg", "show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), ms || 6000);
   }
 
   // ---- interactions ----------------------------------------------------------------
@@ -535,6 +560,27 @@
   const onDocDown = (e) => { if (floatingOpen && !e.composedPath().includes(host)) toggleMenu(); };
   window.addEventListener("pointerdown", onDocDown, true);
 
+  // If Harbor's menu opens but Custom speed couldn't attach (e.g. a Harbor update changed it),
+  // say so once instead of failing silently, and offer the K menu as a way round it.
+  let warned = false;
+  const onNativeClick = (e) => {
+    const btn = nativeSpeedBtn();
+    if (warned || !btn || !e.composedPath().includes(btn)) return;
+    const wasAttached = host.isConnected;
+    setTimeout(() => {
+      if (!alive || warned || wasAttached || host.isConnected || nativeMenu()) return;
+      // a menu-looking panel opened that we can't use?
+      const r = playerRoot();
+      const opened = r && [...r.querySelectorAll("div")].some((d) =>
+        getComputedStyle(d).position === "fixed" && !d.contains(btn) && d.querySelector("button") && d.offsetHeight > 120);
+      if (!opened) return;
+      warned = true;
+      showMessage(`Speed Dial v${VERSION} couldn't add Custom speed to this menu. Press K for its own menu, ` +
+        "and it should be fixed in an update soon.", 8000);
+    }, 600);
+  };
+  window.addEventListener("click", onNativeClick, true);
+
   // ---- lifecycle: follow the player, stay in sync, apply saved speeds --------------
   let inPlayer = false, lastPath = null, pollTimer = 0, alive = true;
 
@@ -652,6 +698,42 @@
     noteTimer = setTimeout(close, 15000);
   })();
 
+  // ---- fast self-update ----------------------------------------------------------------
+  // Asks GitHub for the newest commit (not cached), loads that exact file, and switches to it
+  // if it's newer. Also keeps the loader's offline copy on the newest version.
+  const REPO = "zerobun0/harbor-speed-dial";
+  const CODE_KEY = "speedDial.code";
+  const CHECK_MS = 3 * 60 * 1000;
+  const codeVersion = (c) => (String(c || "").match(/speed-dial v([\d.]+)/) || [])[1] || "0";
+  let updTimer = 0, lastSha = null, lastCode = null;
+  async function selfUpdate() {
+    if (!alive) return;
+    try {
+      const r = await fetch(`https://api.github.com/repos/${REPO}/commits/main`,
+        { headers: { Accept: "application/vnd.github.sha" }, cache: "no-store" });
+      const sha = r.ok ? (await r.text()).trim() : "";
+      if (/^[0-9a-f]{40}$/.test(sha) && sha !== lastSha) {
+        const c = await fetch(`https://raw.githubusercontent.com/${REPO}/${sha}/speed-dial.js`, { cache: "no-store" });
+        const code = c.ok ? await c.text() : "";
+        if (/speed-dial v\d/.test(code)) { lastSha = sha; lastCode = code; }
+      }
+      if (lastCode) {
+        let cached = null;
+        try { cached = localStorage.getItem(CODE_KEY); } catch (_) {}
+        if (verNum(codeVersion(lastCode)) > verNum(codeVersion(cached))) {
+          try { localStorage.setItem(CODE_KEY, lastCode); } catch (_) {}
+        }
+        if (verNum(codeVersion(lastCode)) > verNum(VERSION)) {
+          console.info("[speed-dial] updating", VERSION, "->", codeVersion(lastCode));
+          new Function(lastCode)();   // the new version replaces this one
+          return;
+        }
+      }
+    } catch (_) { /* offline or rate-limited: try again later */ }
+    if (alive) updTimer = setTimeout(selfUpdate, CHECK_MS);
+  }
+  updTimer = setTimeout(selfUpdate, 1500);
+
   // ---- cleanup (Harbor calls this when Custom JS is edited or cleared) --------------
   function destroy() {
     alive = false;
@@ -659,6 +741,8 @@
     clearTimeout(pollTimer); clearTimeout(toastTimer); clearTimeout(writeTimer); clearTimeout(noteTimer);
     window.removeEventListener("keydown", onKey, true);
     window.removeEventListener("pointerdown", onDocDown, true);
+    window.removeEventListener("click", onNativeClick, true);
+    clearTimeout(updTimer);
     host.remove(); toastHost.remove(); noteHost.remove();
     if (window[NS] && window[NS].destroy === destroy) delete window[NS];
   }
