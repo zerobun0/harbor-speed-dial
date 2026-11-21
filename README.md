@@ -25,6 +25,9 @@ No extra buttons, and it follows your Harbor theme.
 
 ## Install (1 minute)
 
+<p align="center"><img src="docs/install.gif" width="840" alt="Installing Speed Dial: copy the code from the Install section, open Settings, System, Custom code in Harbor, then show the code editors and paste into Custom JS"></p>
+<p align="center"><sub>13 seconds, start to finish. <a href="docs/install.mp4">Full quality video</a></sub></p>
+
 1. Open Harbor and go to **Settings → System → Custom code**, then click **Show the code editors**.
    (Older Harbor versions have it under **Settings → Advanced → Custom code**. Can't find it? Type `Custom JS` in the Settings search.)
 2. Paste this into the **Custom JS** box:

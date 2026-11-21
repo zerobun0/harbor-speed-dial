@@ -36,8 +36,11 @@ Repo: https://github.com/zerobun0/harbor-speed-dial (public). Harbor upstream: g
 - ✅ H23: Self-update: asks api.github.com for the main commit sha (uncached), loads raw/<sha>/speed-dial.js, switches if newer; 1.5 s after start then every 3 min; older copies never replace newer ones (v1.4.0, mock-tested). Harbor CSP allows connect-src https: and unsafe-eval.
 - ✅ H24: Install guide says Settings > System > Custom code (Advanced on older Harbor; Settings search as fallback)
 - ✅ H25: Investigated "1.85 carried to Black Clover": not a bug. Harbor defaultPlaybackSpeed was pinned to 1.85 (settings.json). README now explains the pin.
+- ✅ H26-H28: Install walkthrough video edited with HyperFrames (3 scenes: README copy, Settings > System > Custom code, paste into Custom JS; punch-ins, step captions, 12.8 s). docs/install.gif (inline in README Install) + docs/install.mp4
 
 ## Gotchas
+
+- The install video's README footage still shows the old "Settings > Player" line; caption 2 says the right path. Re-record if that bugs anyone. HyperFrames project lived in the session scratchpad (not kept).
 
 - Official Harborofficial/Harbor repo is 404 now (2026-11-21). Newest public source copy: JinxAgain/harbor or canonrebel04/harbor (v0.9.132, older than the user's 1.0.3).
 - Harbor picks a new video's speed as: that title's saved rate, else settings.defaultPlaybackSpeed (the pin in its speed list).
