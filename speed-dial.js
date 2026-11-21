@@ -1,5 +1,22 @@
-/* >>> speed-dial v1.2.0 >>> https://github.com/zerobun0/harbor-speed-dial */
+/* >>> speed-dial v1.3.0 >>> https://github.com/zerobun0/harbor-speed-dial */
 (() => {
+  const VERSION = "1.3.0";
+  // newest first; shown in the update notice and under "What's new"
+  const CHANGELOG = [
+    { v: "1.3.0", items: [
+      "Saved shows: see every show's speed and remove any of them",
+      "This update notice, plus the version and What's new in the menu",
+    ] },
+    { v: "1.2.0", items: [
+      "Lives inside Harbor's Speed & sleep menu, no extra buttons on screen",
+      "Remember a speed per show; it beats \"Use for all videos\"",
+      "Fixed: next episode sometimes didn't get its saved speed",
+    ] },
+    { v: "1.0.0", items: [
+      "First release: dial, any speed from 0.1x to 8x, keyboard steps, follows your theme",
+    ] },
+  ];
+
   // ---- settings you can change ---------------------------------------------------
   const DIAL_MIN = 0.25;        // dial range (typing allows 0.1 to 8)
   const DIAL_MAX = 4;
@@ -28,6 +45,22 @@
   const save = (o) => { try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (_) {} };
   const prefs = Object.assign({ remember: false, speed: 1, shows: {} }, load());
   if (!prefs.shows || typeof prefs.shows !== "object") prefs.shows = {};
+
+  const newer = (a, b) => {   // is version a newer than b?
+    const pa = String(a).split(".").map(Number), pb = String(b).split(".").map(Number);
+    for (let i = 0; i < 3; i++) if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) > (pb[i] || 0);
+    return false;
+  };
+  function changelogNodes(entries) {
+    const f = document.createDocumentFragment();
+    for (const e of entries) {
+      const h = document.createElement("h4"); h.textContent = "v" + e.v; f.appendChild(h);
+      const ul = document.createElement("ul");
+      for (const it of e.items) { const li = document.createElement("li"); li.textContent = it; ul.appendChild(li); }
+      f.appendChild(ul);
+    }
+    return f;
+  }
 
   // ---- player bridge ---------------------------------------------------------------
   const playerRoot = () => document.querySelector(PLAYER_SEL);
@@ -192,7 +225,37 @@
   .opt[aria-checked="true"] .sw { background: var(--accent); }
   .opt[aria-checked="true"] .sw::after { transform: translateX(14px); background: var(--on-accent); }
 
-  .keys { font-size: 11.5px; color: var(--subtle); padding: 6px 12px 2px; }
+  /* saved shows */
+  .chev { flex: none; width: 16px; height: 16px; color: var(--subtle); transition: transform .18s ease; }
+  .saved-opt[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .saved-opt .count { font-variant-numeric: tabular-nums; color: var(--subtle); margin-inline-start: 6px; }
+  .saved { display: flex; flex-direction: column; gap: 2px; padding: 0 0 4px; max-height: 176px; overflow-y: auto; }
+  .saved[hidden] { display: none; }
+  .srow { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 4px 0 24px; border-radius: 8px; color: var(--muted); }
+  .srow:hover { background: var(--hover); color: var(--ink); }
+  .srow.now { color: var(--ink); }
+  .srow .n { flex: 1; min-width: 0; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .srow .v { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .srow .x {
+    flex: none; width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center;
+    color: var(--subtle); opacity: .7; transition: background-color .12s, color .12s, opacity .12s;
+  }
+  .srow:hover .x { opacity: 1; }
+  .srow .x:hover { background: var(--hover); color: var(--danger); }
+  .srow .x svg { width: 14px; height: 14px; }
+
+  /* footer: keys + version */
+  .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px 2px; }
+  .ver { flex: none; font-size: 11.5px; color: var(--subtle); padding: 2px 6px; margin: -2px -6px; border-radius: 6px; transition: background-color .12s, color .12s; }
+  .ver:hover { background: var(--hover); color: var(--ink); }
+  .news { margin: 6px 4px 2px; padding: 10px 12px; border-radius: 8px; background: var(--hover); font-size: 12.5px; color: var(--muted); }
+  .news[hidden] { display: none; }
+  .news h4 { margin: 0 0 4px; font-size: 12.5px; font-weight: 600; color: var(--ink); }
+  .news h4:not(:first-child) { margin-top: 10px; }
+  .news ul { margin: 0; padding-inline-start: 16px; }
+  .news li { margin: 2px 0; }
+
+  .keys { font-size: 11.5px; color: var(--subtle); }
   kbd { font: inherit; font-size: 11px; font-weight: 600; color: var(--muted); padding: 0 5px; border-radius: 5px; background: var(--hover); }
 
   @media (prefers-reduced-motion: reduce) { *, *::after { transition: none !important; } }
@@ -226,14 +289,26 @@
     <button class="opt all-opt" type="button" role="switch" aria-checked="false">
       <span class="txt"><span>Use for all videos</span><span class="s">Shows with their own speed keep theirs</span></span><span class="sw"></span>
     </button>
+    <button class="opt saved-opt" type="button" aria-expanded="false" hidden>
+      <span class="txt"><span>Saved shows</span><span class="count"></span></span>
+      <svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="saved" hidden></div>
   </div>
-  <div class="keys"><kbd>;</kbd> <kbd>'</kbd> slower / faster &middot; <kbd>&#92;</kbd> reset &middot; <kbd>K</kbd> this menu</div>
+  <div class="news" hidden></div>
+  <div class="foot">
+    <span class="keys"><kbd>;</kbd> <kbd>'</kbd> slower / faster &middot; <kbd>&#92;</kbd> reset &middot; <kbd>K</kbd> menu</span>
+    <button class="ver" type="button" aria-expanded="false">v${VERSION} &middot; What's new</button>
+  </div>
 </div>`;
 
   const $ = (s) => root.querySelector(s);
   const sd = $(".sd"), dial = $(".dial"), tape = $(".tape"), valEl = $(".val"), input = $(".in");
   const field = $(".field"), hint = $(".hint"), resetBtn = $(".reset");
   const showOpt = $(".show-opt"), showName = $(".show-name"), allOpt = $(".all-opt");
+  const savedOpt = $(".saved-opt"), savedCount = $(".saved-opt .count"), savedList = $(".saved");
+  const verBtn = $(".ver"), news = $(".news");
+  news.appendChild(changelogNodes(CHANGELOG));
 
   const steps = Math.round((DIAL_MAX - DIAL_MIN) / FINE_STEP);
   const frag = document.createDocumentFragment();
@@ -280,6 +355,32 @@
     showOpt.title = currentShow || "";
     showOpt.setAttribute("aria-checked", String(hasShowSpeed()));
     allOpt.setAttribute("aria-checked", String(!!prefs.remember));
+    renderSaved();
+  }
+
+  const X_ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+  let savedKey = "";
+  function renderSaved() {
+    const names = Object.keys(prefs.shows).sort((a, b) => a.localeCompare(b));
+    savedOpt.hidden = names.length === 0;
+    savedCount.textContent = String(names.length);
+    if (!names.length) { savedList.hidden = true; savedOpt.setAttribute("aria-expanded", "false"); }
+    const key = JSON.stringify([names.map((n) => [n, prefs.shows[n]]), currentShow]);
+    if (key === savedKey) return;           // nothing changed, keep the DOM (and hover) as is
+    savedKey = key;
+    savedList.textContent = "";
+    for (const n of names) {
+      const row = document.createElement("div");
+      row.className = "srow" + (n === currentShow ? " now" : "");
+      const nm = document.createElement("span"); nm.className = "n"; nm.textContent = n; nm.title = n;
+      const v = document.createElement("span"); v.className = "v"; v.textContent = label(prefs.shows[n]);
+      const x = document.createElement("button");
+      x.type = "button"; x.className = "x"; x.innerHTML = X_ICON;
+      x.setAttribute("aria-label", "Forget the speed for " + n); x.title = "Forget";
+      x.addEventListener("click", () => { delete prefs.shows[n]; save(prefs); render(false); });
+      row.append(nm, v, x);
+      savedList.appendChild(row);
+    }
   }
 
   let writeTimer = 0, pendingWrite = null;
@@ -344,6 +445,16 @@
     if (hasShowSpeed()) delete prefs.shows[currentShow]; else prefs.shows[currentShow] = speed;
     save(prefs); render(false);
   });
+  savedOpt.addEventListener("click", () => {
+    const open = savedList.hidden;
+    savedList.hidden = !open;
+    savedOpt.setAttribute("aria-expanded", String(open));
+  });
+  verBtn.addEventListener("click", () => {
+    const open = news.hidden;
+    news.hidden = !open;
+    verBtn.setAttribute("aria-expanded", String(open));
+  });
 
   let startX = 0, startSpeed = 1;
   dial.addEventListener("pointerdown", (e) => {
@@ -371,9 +482,11 @@
   });
 
   // ---- placement: inside Harbor's menu, or our own menu if that button is hidden ----
+  var noteCloser = null;  // set by the update notice; var so it exists before that code runs
   function placeInMenu() {
     const menu = nativeMenu();
     if (menu) {
+      if (noteCloser) { noteCloser(); noteCloser = null; }   // opening the menu dismisses the notice
       if (host.parentNode !== menu || menu.firstChild !== host) menu.insertBefore(host, menu.firstChild);
       sd.classList.remove("floating");
       floatingOpen = false;
@@ -468,17 +581,77 @@
   render(false);
   sync();
 
+  // ---- "updated" notice: once per new version, anywhere in Harbor -------------------
+  const SEEN = "speedDial.seen";
+  const noteHost = document.createElement("div");
+  let noteTimer = 0;
+  (function updateNotice() {
+    let seen = null;
+    try { seen = localStorage.getItem(SEEN); localStorage.setItem(SEEN, VERSION); } catch (_) { return; }
+    if (seen === VERSION) return;
+    // older versions didn't record what was seen: if Speed Dial already ran here, this is an update
+    const hadOlder = !seen && (localStorage.getItem(STORE) != null || localStorage.getItem("speedDial.code") != null);
+    if (seen && !newer(VERSION, seen)) return;
+    const entries = seen ? CHANGELOG.filter((e) => newer(e.v, seen)) : hadOlder ? CHANGELOG.slice(0, 1) : [];
+    const nr = noteHost.attachShadow({ mode: "open" });
+    nr.innerHTML = `<style>
+      :host { all: initial; }
+      .n {
+        position: fixed; left: 50%; top: 20px; z-index: 2147483001; width: 340px; max-width: calc(100vw - 32px);
+        padding: 14px 14px 12px 16px; border-radius: var(--radius-md, 10px);
+        background: var(--color-elevated, #34373f); color: var(--color-ink, #f6f6f8);
+        box-shadow: 0 10px 30px -12px rgba(0,0,0,.6), 0 0 0 1px var(--color-edge-soft, transparent);
+        font: 400 13px/1.4 var(--font-sans, system-ui, sans-serif); -webkit-font-smoothing: antialiased;
+        opacity: 0; transform: translate(-50%, -8px); transition: opacity .2s ease, transform .25s cubic-bezier(.2,.8,.2,1);
+      }
+      .n.show { opacity: 1; transform: translate(-50%, 0); }
+      .top { display: flex; align-items: flex-start; gap: 10px; }
+      .dot { flex: none; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--color-accent, #d364ba);
+        box-shadow: 0 0 0 4px var(--color-accent-soft, transparent); }
+      .t { flex: 1; font-size: 14px; font-weight: 600; }
+      .s { color: var(--color-ink-subtle, #6e7079); font-size: 12px; font-weight: 400; margin-top: 1px; }
+      .x { all: unset; cursor: pointer; flex: none; width: 26px; height: 26px; margin: -4px -4px 0 0; border-radius: 6px;
+        display: grid; place-items: center; color: var(--color-ink-subtle, #6e7079); }
+      .x:hover { background: color-mix(in srgb, var(--color-canvas, #000) 55%, transparent); color: var(--color-ink, #fff); }
+      .x:focus-visible { outline: 2px solid var(--color-accent, #d364ba); }
+      .x svg { width: 14px; height: 14px; }
+      .body { margin: 8px 0 0 18px; color: var(--color-ink-muted, #aaadb6); }
+      h4 { margin: 8px 0 2px; font-size: 12px; font-weight: 600; color: var(--color-ink-subtle, #6e7079); }
+      h4:first-child { display: none; }
+      ul { margin: 0; padding-inline-start: 16px; } li { margin: 2px 0; }
+      @media (prefers-reduced-motion: reduce) { .n { transition: none; } }
+    </style>
+    <div class="n" role="status">
+      <div class="top"><span class="dot"></span>
+        <div class="t">Speed Dial ${entries.length ? "updated to" : "installed:"} v${VERSION}
+          <div class="s">${entries.length ? "What's new:" : "Open Speed &amp; sleep in the player, or press K"}</div></div>
+        <button class="x" type="button" aria-label="Close">${X_ICON}</button></div>
+      <div class="body"></div>
+    </div>`;
+    const card = nr.querySelector(".n");
+    if (entries.length) nr.querySelector(".body").appendChild(changelogNodes(entries));
+    else nr.querySelector(".body").remove();
+    const close = () => { noteCloser = null; card.classList.remove("show"); clearTimeout(noteTimer); setTimeout(() => noteHost.remove(), 300); };
+    noteCloser = close;
+    nr.querySelector(".x").addEventListener("click", close);
+    card.addEventListener("mouseenter", () => clearTimeout(noteTimer));
+    card.addEventListener("mouseleave", () => { noteTimer = setTimeout(close, 6000); });
+    document.body.appendChild(noteHost);
+    requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add("show")));
+    noteTimer = setTimeout(close, 15000);
+  })();
+
   // ---- cleanup (Harbor calls this when Custom JS is edited or cleared) --------------
   function destroy() {
     alive = false;
     mo.disconnect();
-    clearTimeout(pollTimer); clearTimeout(toastTimer); clearTimeout(writeTimer);
+    clearTimeout(pollTimer); clearTimeout(toastTimer); clearTimeout(writeTimer); clearTimeout(noteTimer);
     window.removeEventListener("keydown", onKey, true);
     window.removeEventListener("pointerdown", onDocDown, true);
-    host.remove(); toastHost.remove();
+    host.remove(); toastHost.remove(); noteHost.remove();
     if (window[NS] && window[NS].destroy === destroy) delete window[NS];
   }
-  window[NS] = { destroy, version: "1.2.0", get speed() { return speed; }, set: (x) => setSpeed(+x, { glide: true }) };
+  window[NS] = { destroy, version: VERSION, get speed() { return speed; }, set: (x) => setSpeed(+x, { glide: true }) };
   const prevCleanup = window.__harborCustomCleanup;
   window.__harborCustomCleanup = () => {
     try { destroy(); } catch (_) {}

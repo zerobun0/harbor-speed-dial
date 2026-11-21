@@ -12,9 +12,12 @@ No extra buttons, and it follows your Harbor theme.
 - **Built into Harbor's Speed & sleep menu**: nothing extra on screen, Harbor's presets and sleep timer stay as they are
 - **Remember for this show**: every episode of that show starts at your speed. Movies count on their own
 - **Use for all videos**: one speed for everything else
+- **Saved shows**: see every show's speed and remove any of them
 - **Follows your theme**: colours, font and corners come from whatever Harbor theme you use, and change live
 - **Stays in sync** with Harbor's own `[` `]` speed keys
-- **Updates itself** from this repo, with a cached copy so it still works offline
+- **Updates itself** from this repo, with a cached copy so it still works offline. A small card tells you when it updated and what's new
+
+![Saved shows list](docs/saved-shows.png) ![Update notice](docs/update-notice.png)
 
 | Your theme | Nord | Violet |
 | --- | --- | --- |
@@ -56,7 +59,9 @@ No extra buttons, and it follows your Harbor theme.
 
 3. Play something and open **Speed & sleep** (or press `K`). The Custom speed section is at the top. No restart needed.
 
-**Updates:** automatic. Harbor checks this repo when it starts and every 10 minutes.
+**Updates:** automatic. Harbor checks this repo when it starts and every 10 minutes. When a new version lands you get a
+"Speed Dial updated" card with the changes. Your version is always shown at the bottom of Custom speed (click it for
+**What's new**), and the full history is in [CHANGELOG.md](CHANGELOG.md).
 
 **Already have other Custom JS?** Paste this below it. Both keep working.
 

@@ -6,7 +6,7 @@ Repo: https://github.com/zerobun0/harbor-speed-dial (public). Harbor upstream: g
 
 ## Open
 
-- ⬜ H15: User checks v1.2 in real Harbor (open Speed & sleep or press K; floating pill from v1.0 should be gone)
+- ⬜ H15: User checks v1.3 in real Harbor (should see 'Speed Dial updated to v1.3.0' card) (open Speed & sleep or press K; floating pill from v1.0 should be gone)
   - Done: section shows inside the menu, speed changes heard, per-show works on next episode
 - ⬜ H11: Ask user whether to delete speed-dial.ps1 (doesn't work) and docs/control-bar.png (no longer used)
 
@@ -24,6 +24,11 @@ Repo: https://github.com/zerobun0/harbor-speed-dial (public). Harbor upstream: g
 - ✅ H13: Nothing on screen until the menu opens (fixes pill over Skip Intro / during loading) (v1.2.0)
 - ✅ H14: "Custom speed" section injected at top of Harbor's Speed & sleep popover (div.fixed inside the button's div.relative); K clicks the native button; floating fallback if button hidden (v1.2.0). Replaces the v1.1 control-bar button, which never shipped.
 - ✅ H10: v1.2.0 pushed to main for auto-update
+
+- ✅ H16: Saved shows list (expand, remove per show) (v1.3.0)
+- ✅ H17: Update notice card once per new version (localStorage `speedDial.seen`; older installs detected via `speedDial.v1`/`speedDial.code`), top-centre, closes when menu opens; version + What's new in footer (v1.3.0)
+- ✅ H18: CHANGELOG.md; keep it and the CHANGELOG array at the top of speed-dial.js in sync on every release
+- ✅ H19: v1.3.0 pushed
 
 ## Gotchas
 
