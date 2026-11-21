@@ -6,13 +6,9 @@ Repo: https://github.com/zerobun0/harbor-speed-dial (public). Harbor upstream: g
 
 ## Open
 
-- ⛔ H5: Loader pasted into the user's Harbor (Settings > Player > Custom code > Custom JS)
-  - Waits on: user pasting (loader.js was put on their clipboard 2026-11-21)
-  - Done: dial button shows in the control bar on v1.0.0
-- ⬜ H10: Push v1.1.0 (control-bar button + per-show memory, uncommitted in speed-dial.js) AFTER H5, so the user sees the auto-update
-  - How: `git add speed-dial.js && git commit && git push`; Harbor picks it up within 10 min or on restart
-  - Done: user sees the new button next to Harbor's speed button and the "Remember for this show" switch
-- ⬜ H11: Ask user whether to delete speed-dial.ps1 (doesn't work, see gotchas)
+- ⬜ H15: User checks v1.2 in real Harbor (open Speed & sleep or press K; floating pill from v1.0 should be gone)
+  - Done: section shows inside the menu, speed changes heard, per-show works on next episode
+- ⬜ H11: Ask user whether to delete speed-dial.ps1 (doesn't work) and docs/control-bar.png (no longer used)
 
 ## Done
 
@@ -23,6 +19,11 @@ Repo: https://github.com/zerobun0/harbor-speed-dial (public). Harbor upstream: g
 - ✅ H7: Public repo with README, screenshots (docs/), MIT licence (d85f5c3, 652055b)
 - ✅ H8: Control-bar button next to Harbor's "Speed and sleep timer" button, copies its classes; floats if that button is hidden (in working tree, v1.1.0)
 - ✅ H9: Per-show speed via mpv `force-media-title` ("Show · S1E2 · Ep"), priority show > all-videos > Harbor default (in working tree, v1.1.0, mock-tested)
+
+- ✅ H5: Loader pasted into user's Harbor by the user (2026-11-21), v1.0 ran (floating pill seen in their screenshots)
+- ✅ H13: Nothing on screen until the menu opens (fixes pill over Skip Intro / during loading) (v1.2.0)
+- ✅ H14: "Custom speed" section injected at top of Harbor's Speed & sleep popover (div.fixed inside the button's div.relative); K clicks the native button; floating fallback if button hidden (v1.2.0). Replaces the v1.1 control-bar button, which never shipped.
+- ✅ H10: v1.2.0 pushed to main for auto-update
 
 ## Gotchas
 

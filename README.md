@@ -1,21 +1,20 @@
 # Speed Dial for Harbor
 
 Pick **any** playback speed in the [Harbor](https://github.com/Harborofficial/Harbor) player, not just the presets.
-Drag a dial, type `1.37`, or tap a preset. Remember a speed per show. It follows your Harbor theme.
+It adds a **Custom speed** section to Harbor's own **Speed & sleep** menu: drag a dial, type `1.37`, remember a speed per show.
+No extra buttons, and it follows your Harbor theme.
 
 ![Speed Dial open in the Harbor player](docs/panel.png)
 
 ## What it does
 
 - **Any speed from 0.1× to 8×**: drag or scroll the dial (0.05 steps), use − / +, tap a preset, or type an exact number
-- **Lives in Harbor's control bar**, next to the built-in speed button, and looks like it belongs there
+- **Built into Harbor's Speed & sleep menu**: nothing extra on screen, Harbor's presets and sleep timer stay as they are
 - **Remember for this show**: every episode of that show starts at your speed. Movies count on their own
 - **Use for all videos**: one speed for everything else
 - **Follows your theme**: colours, font and corners come from whatever Harbor theme you use, and change live
 - **Stays in sync** with Harbor's own `[` `]` speed keys
 - **Updates itself** from this repo, with a cached copy so it still works offline
-
-![The Speed Dial button in Harbor's control bar](docs/control-bar.png)
 
 | Your theme | Nord | Violet |
 | --- | --- | --- |
@@ -55,7 +54,7 @@ Drag a dial, type `1.37`, or tap a preset. Remember a speed per show. It follows
 /* <<< speed-dial <<< */
 ```
 
-3. Play something. The new dial button is in the control bar. No restart needed.
+3. Play something and open **Speed & sleep** (or press `K`). The Custom speed section is at the top. No restart needed.
 
 **Updates:** automatic. Harbor checks this repo when it starts and every 10 minutes.
 
@@ -70,12 +69,12 @@ Drag a dial, type `1.37`, or tap a preset. Remember a speed per show. It follows
 
 | Key | Does |
 | --- | --- |
-| `K` | open / close the panel |
+| `K` | open / close Harbor's Speed & sleep menu |
 | `;` / `'` | 0.05× slower / faster |
 | `\` | back to 1× |
 | `[` / `]` | Harbor's own 0.25× steps (unchanged) |
 
-You can also scroll on the dial button to change speed without opening the panel.
+You can also scroll on the dial to change speed.
 
 **Priority when a new video starts:** the show's own speed, then "Use for all videos", then Harbor's default speed.
 
@@ -92,7 +91,7 @@ change them, and point `SRC` in the loader at your fork.
 ## Notes
 
 - Works with Harbor v1.0.3 and later (Harborofficial/Harbor), on the built-in mpv player and the HTML5 player.
-- If you've hidden Harbor's speed button in the player layout editor, the dial button floats at the bottom right instead.
+- If you've hidden Harbor's speed button in the player layout editor, `K` opens Custom speed as a menu of its own.
 - Saved speeds live in Harbor's local storage on your PC. Nothing is sent anywhere. The only network request is fetching updates from this repo.
 - Not affiliated with the Harbor team.
 
